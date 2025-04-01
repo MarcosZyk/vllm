@@ -17,7 +17,7 @@ from vllm.logger import init_logger
 from vllm.sequence import IntermediateTensors
 
 if TYPE_CHECKING:
-    from vllm.worker.model_runner import ModelInputForGPUWithSamplingMetadata
+    from vllm.worker.cpu_model_runner import ModelInputForCPUWithSamplingMetadata
 
 logger = init_logger(__name__)
 
@@ -62,10 +62,10 @@ class LMCacheConnector(KVConnectorBase):
 
     def recv_kv_caches_and_hidden_states(
         self, model_executable: torch.nn.Module,
-        model_input: "ModelInputForGPUWithSamplingMetadata",
+        model_input: "ModelInputForCPUWithSamplingMetadata",
         kv_caches: List[torch.Tensor]
     ) -> Tuple[Union[torch.Tensor, IntermediateTensors], bool,
-               "ModelInputForGPUWithSamplingMetadata"]:
+               "ModelInputForCPUWithSamplingMetadata"]:
 
         retrieve_status = self.lmcache_should_retrieve(model_input)
         model_input, bypass_model_exec, hidden_or_intermediate_states =\
@@ -77,7 +77,7 @@ class LMCacheConnector(KVConnectorBase):
     def send_kv_caches_and_hidden_states(
         self,
         model_executable: torch.nn.Module,
-        model_input: "ModelInputForGPUWithSamplingMetadata",
+        model_input: "ModelInputForCPUWithSamplingMetadata",
         kv_caches: List[torch.Tensor],
         hidden_or_intermediate_states: Union[torch.Tensor,
                                              IntermediateTensors],

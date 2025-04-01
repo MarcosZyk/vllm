@@ -8,7 +8,7 @@ This implementation is a shim wrapper on two APIs exposed by `kv_connector`:
 from typing import TYPE_CHECKING, List, Tuple, Union
 
 if TYPE_CHECKING:
-    from vllm.worker.model_runner import ModelInputForGPUWithSamplingMetadata
+    from vllm.worker.cpu_model_runner import ModelInputForCPUWithSamplingMetadata
     from vllm.config import VllmConfig
 
 import torch
@@ -67,10 +67,10 @@ class KVTransferAgent:
 
     def recv_kv_caches_and_hidden_states(
         self, model_executable: torch.nn.Module,
-        model_input: "ModelInputForGPUWithSamplingMetadata",
+        model_input: "ModelInputForCPUWithSamplingMetadata",
         kv_caches: List[torch.Tensor]
     ) -> Tuple[Union[torch.Tensor, IntermediateTensors], bool,
-               "ModelInputForGPUWithSamplingMetadata"]:
+               "ModelInputForCPUWithSamplingMetadata"]:
 
         return self.connector.recv_kv_caches_and_hidden_states(
             model_executable, model_input, kv_caches)
