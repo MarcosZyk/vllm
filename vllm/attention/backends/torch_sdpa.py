@@ -23,6 +23,8 @@ from vllm.logger import init_logger
 from vllm.utils import make_tensor_with_pad
 from vllm.worker.cpu_model_runner import ModelInputForCPUBuilder
 
+from itertools import accumulate
+
 logger = init_logger(__name__)
 
 
@@ -333,7 +335,11 @@ class TorchSDPAMetadataBuilder(AttentionMetadataBuilder[TorchSDPAMetadata]):
             max_kv_len = max(prefill_seq_lens)
         else:
             prefill_block_tables = None
-            query_start_loc = None
+            query_start_loc = torch.tensor(
+                list(accumulate(query_lens, initial=0)),
+                dtype=torch.int32,
+                device="cpu"
+            )
             kv_start_loc = None
             max_query_len = None
             max_kv_len = None
