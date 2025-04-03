@@ -335,17 +335,18 @@ class TorchSDPAMetadataBuilder(AttentionMetadataBuilder[TorchSDPAMetadata]):
             max_kv_len = max(prefill_seq_lens)
         else:
             prefill_block_tables = None
-            query_start_loc = torch.tensor(
-                list(accumulate(query_lens, initial=0)),
-                dtype=torch.int32,
-                device="cpu"
-            )
+            query_start_loc = None
             kv_start_loc = None
             max_query_len = None
             max_kv_len = None
 
         # For paged attention
         if input_data.num_decode_tokens != 0:
+            query_start_loc = torch.tensor(
+                list(accumulate(query_lens[input_data.num_prefills:], initial=0)),
+                dtype=torch.int32,
+                device="cpu"
+            )
             seq_lens_tensor = torch.tensor(
                 input_data.seq_lens[input_data.num_prefills:],
                 dtype=torch.int32,
@@ -363,6 +364,11 @@ class TorchSDPAMetadataBuilder(AttentionMetadataBuilder[TorchSDPAMetadata]):
                 input_data.seq_lens[:input_data.num_prefills],
                 dtype=torch.int32,
                 device="cpu",
+            )
+            query_start_loc = torch.tensor(
+                list(accumulate(query_lens[:input_data.num_prefills], initial=0)),
+                dtype=torch.int32,
+                device="cpu"
             )
 
         # For multi-modal models
